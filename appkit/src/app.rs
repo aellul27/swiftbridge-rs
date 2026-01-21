@@ -8,6 +8,7 @@ unsafe extern "C" {
     fn swift_appkit_create_app() -> *mut c_void;
     fn swift_appkit_run(appPtr: *const c_void);
     fn swift_appkit_activate(appPtr: *const c_void);
+    fn swift_appkit_deactivate(appPtr: *const c_void);
 }
 
 /// A handle to the shared `NSApplication` created by Swift.
@@ -45,6 +46,11 @@ impl App {
     /// Activate the App
     pub fn activate(&self) {
         unsafe { swift_appkit_activate(self.ptr) }
+    }
+
+    /// Deactivate the App
+    pub fn deactivate(&self) {
+        unsafe { swift_appkit_deactivate(self.ptr) }
     }
     
     

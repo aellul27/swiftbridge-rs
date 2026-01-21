@@ -1,0 +1,8 @@
+[package]
+name = "appkit"
+version = "0.1.0"
+edition = "2024"
+build = "../build.rs"
+
+[build-dependencies]
+fs_extra = "1.3.0"

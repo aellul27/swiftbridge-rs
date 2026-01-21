@@ -80,6 +80,11 @@ on non-macOS platforms.
 
     copy(&source, &destination_dir, &options)
         .expect("failed to copy framework directory");
-
     println!("Copied swiftbridge.framework to target/");
+
+    // Tell cargo/rustc where to find the framework and to link it.
+    // The `framework=` search kind ensures the directory is added to the
+    // framework search path (clang -F).
+    println!("cargo:rustc-link-search=framework={}", destination_dir.display());
+    println!("cargo:rustc-link-lib=framework=swiftbridge");
 }

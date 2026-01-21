@@ -9,6 +9,8 @@ unsafe extern "C" {
     fn swift_appkit_run(appPtr: *const c_void);
     fn swift_appkit_activate(appPtr: *const c_void);
     fn swift_appkit_deactivate(appPtr: *const c_void);
+    fn swift_appkit_stop(appPtr: *const c_void);
+    fn swift_appkit_terminate(appPtr: *const c_void);
 }
 
 /// A handle to the shared `NSApplication` created by Swift.
@@ -51,6 +53,16 @@ impl App {
     /// Deactivate the App
     pub fn deactivate(&self) {
         unsafe { swift_appkit_deactivate(self.ptr) }
+    }
+
+    /// Stop the App loop, allowing activity on main thread
+    pub fn stop(&self) {
+        unsafe { swift_appkit_stop(self.ptr) }
+    }
+
+    /// Terminate (close) the App
+    pub fn terminate(&self) {
+        unsafe { swift_appkit_terminate(self.ptr) }
     }
     
     

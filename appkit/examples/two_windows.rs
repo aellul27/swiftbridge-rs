@@ -48,8 +48,10 @@ fn main() {
         thread::sleep(Duration::from_secs(5));
         window.destroy();
         window2.destroy();
+        app_for_thread.stop();
         thread::park();
     });
 
     app.run();
+    app.terminate()
 }

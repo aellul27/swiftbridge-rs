@@ -7,6 +7,7 @@ use crate::window::Window;
 unsafe extern "C" {
     fn swift_appkit_create_app() -> *mut c_void;
     fn swift_appkit_run(appPtr: *const c_void);
+    fn swift_appkit_activate(appPtr: *const c_void);
 }
 
 /// A handle to the shared `NSApplication` created by Swift.
@@ -40,6 +41,12 @@ impl App {
     pub fn run(&self) {
         unsafe { swift_appkit_run(self.ptr) }
     }
+
+    /// Activate the App
+    pub fn activate(&self) {
+        unsafe { swift_appkit_activate(self.ptr) }
+    }
+    
     
     /// Create a window via the Swift bridge.
     pub fn create_window(

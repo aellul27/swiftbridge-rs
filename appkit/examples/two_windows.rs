@@ -44,6 +44,7 @@ fn main() {
                 return;
             }
         };
+        app_for_thread.activate();
         thread::sleep(Duration::from_secs(5));
         window.destroy();
         window2.destroy();

@@ -1,14 +1,25 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use std::ffi::CStr;
+
+pub mod app;
+pub mod window;
+
+pub use app::App;
+pub use window::Window;
+
+#[link(name = "swiftbridge", kind = "framework")]
+unsafe extern "C" {
+    fn swiftbridge_last_error() -> *const i8;
+    fn swiftbridge_clear_last_error();
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+pub(crate) fn last_error() -> String {
+    unsafe {
+        let p = swiftbridge_last_error();
+        if p.is_null() {
+            return "unknown error".to_string();
+        }
+        let s = CStr::from_ptr(p).to_string_lossy().into_owned();
+        swiftbridge_clear_last_error();
+        s
     }
 }

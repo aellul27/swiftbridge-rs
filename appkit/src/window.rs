@@ -14,7 +14,7 @@ unsafe extern "C" {
         titlePtr: *const c_char,
     ) -> *const c_void;
 
-    fn swift_appkit_window_release(windowPtr: *const c_void);
+    fn swift_appkit_window_close(windowPtr: *const c_void);
     fn swift_appkit_set_title(windowPtr: *const c_void, titlePtr: *const c_char);
     fn swift_appkit_set_location(windowPtr: *const c_void, x: c_double, y: c_double);
     fn swift_appkit_set_size(windowPtr: *const c_void, width: c_double, height: c_double);
@@ -66,7 +66,7 @@ impl Window {
         let window_ptr = self.ptr.swap(std::ptr::null_mut(), Ordering::AcqRel);
         if !window_ptr.is_null() {
             unsafe {
-                swift_appkit_window_release(window_ptr);
+                swift_appkit_window_close(window_ptr);
             }
         }
     }

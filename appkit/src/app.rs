@@ -18,6 +18,12 @@ pub struct App {
 unsafe impl Send for App {}
 unsafe impl Sync for App {}
 
+impl Clone for App {
+    fn clone(&self) -> Self {
+        Self { ptr: self.ptr }
+    }
+}
+
 impl App {
     /// Create or get the shared application instance.
     pub fn create() -> Result<Self, String> {
@@ -34,7 +40,7 @@ impl App {
     pub fn run(&self) {
         unsafe { swift_appkit_run(self.ptr) }
     }
-
+    
     /// Create a window via the Swift bridge.
     pub fn create_window(
         &self,

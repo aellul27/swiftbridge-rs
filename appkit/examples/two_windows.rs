@@ -44,14 +44,29 @@ fn main() {
                 return;
             }
         };
-        app_for_thread.activate();
+        if let Err(e) = app_for_thread.activate() {
+            eprintln!("Failed to activate app: {}", e);
+            return;
+        }
         thread::sleep(Duration::from_secs(5));
-        window.destroy();
-        window2.destroy();
-        app_for_thread.stop();
+        if let Err(e) = window.destroy() {
+            eprintln!("Failed to destroy window: {}", e);
+        }
+        if let Err(e) = window2.destroy() {
+            eprintln!("Failed to destroy window: {}", e);
+        }
+        if let Err(e) = app_for_thread.stop() {
+            eprintln!("Failed to stop app: {}", e);
+            return;
+        }
         thread::park();
     });
 
-    app.run();
-    app.terminate()
+    if let Err(e) = app.run() {
+        eprintln!("Failed to run app: {}", e);
+        return;
+    }
+    if let Err(e) = app.terminate() {
+        eprintln!("Failed to terminate app: {}", e);
+    }
 }

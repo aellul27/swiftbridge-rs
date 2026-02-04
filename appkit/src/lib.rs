@@ -23,3 +23,16 @@ pub(crate) fn last_error() -> String {
         s
     }
 }
+
+pub(crate) fn wrap_error<T>(value: T) -> Result<T, String> {
+    unsafe {
+        let p = swiftbridge_last_error();
+        if p.is_null() {
+            Ok(value)
+        } else {
+            let s = CStr::from_ptr(p).to_string_lossy().into_owned();
+            swiftbridge_clear_last_error();
+            Err(s)
+        }
+    }
+}

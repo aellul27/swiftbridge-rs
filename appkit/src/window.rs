@@ -3,6 +3,7 @@ use std::os::raw::{c_char, c_double, c_void};
 use std::sync::atomic::{AtomicPtr, Ordering};
 
 use crate::last_error;
+use crate::wrap_error;
 
 #[link(name = "swiftbridge", kind = "framework")]
 unsafe extern "C" {
@@ -53,7 +54,7 @@ impl Window {
             if w.is_null() {
                 return Err(last_error());
             }
-            Ok(Window::from_raw(w))
+            wrap_error(Window::from_raw(w))
         }
     }
 
@@ -62,50 +63,52 @@ impl Window {
     }
 
     /// Explicitly releases the Swift window. Safe to call multiple times.
-    pub fn destroy(&self) {
+    pub fn destroy(&self) -> Result<(), String> {
         let window_ptr = self.ptr.swap(std::ptr::null_mut(), Ordering::AcqRel);
         if !window_ptr.is_null() {
             unsafe {
                 swift_appkit_window_close(window_ptr);
             }
+            return wrap_error(());
         }
+        Ok(())
     }
 
     /// Sets the window title safely.
-    pub fn set_title(&self, title: &str) {
-        let c_title = match CString::new(title) {
-            Ok(t) => t,
-            Err(_) => return,
-        };
+    pub fn set_title(&self, title: &str) -> Result<(), String> {
+        let c_title = CString::new(title).map_err(|_| "title contained interior nul".to_string())?;
         let window_ptr = self.as_ptr();
         if window_ptr.is_null() {
-            return;
+            return Ok(());
         }
         unsafe {
             swift_appkit_set_title(window_ptr, c_title.as_ptr());
         }
+        wrap_error(())
     }
 
     /// Sets the window location safely.
-    pub fn set_location(&self, x: f64, y: f64) {
+    pub fn set_location(&self, x: f64, y: f64) -> Result<(), String> {
         let window_ptr = self.as_ptr();
         if window_ptr.is_null() {
-            return;
+            return Ok(());
         }
         unsafe {
             swift_appkit_set_location(window_ptr, x as c_double, y as c_double);
         }
+        wrap_error(())
     }
 
     /// Sets the window size safely.
-    pub fn set_size(&self, width: f64, height: f64) {
+    pub fn set_size(&self, width: f64, height: f64) -> Result<(), String> {
         let window_ptr = self.as_ptr();
         if window_ptr.is_null() {
-            return;
+            return Ok(());
         }
         unsafe {
             swift_appkit_set_size(window_ptr, width as c_double, height as c_double);
         }
+        wrap_error(())
     }
 
     /// Access the raw pointer if needed for lower-level interop.
@@ -116,6 +119,6 @@ impl Window {
 
 impl Drop for Window {
     fn drop(&mut self) {
-        self.destroy();
+        let _ = self.destroy();
     }
 }

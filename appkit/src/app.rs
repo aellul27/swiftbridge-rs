@@ -1,6 +1,7 @@
 use std::os::raw::c_void;
 
 use crate::last_error;
+use crate::wrap_error;
 use crate::window::Window;
 
 #[link(name = "swiftbridge", kind = "framework")]
@@ -41,28 +42,33 @@ impl App {
     }
 
     /// Run the AppKit run loop (blocks until the app exits).
-    pub fn run(&self) {
+    pub fn run(&self) -> Result<(), String> {
         unsafe { swift_appkit_run(self.ptr) }
+        wrap_error(())
     }
 
     /// Activate the App
-    pub fn activate(&self) {
+    pub fn activate(&self) -> Result<(), String> {
         unsafe { swift_appkit_activate(self.ptr) }
+        wrap_error(())
     }
 
     /// Deactivate the App
-    pub fn deactivate(&self) {
+    pub fn deactivate(&self) -> Result<(), String> {
         unsafe { swift_appkit_deactivate(self.ptr) }
+        wrap_error(())
     }
 
     /// Stop the App loop, allowing activity on main thread
-    pub fn stop(&self) {
+    pub fn stop(&self) -> Result<(), String> {
         unsafe { swift_appkit_stop(self.ptr) }
+        wrap_error(())
     }
 
     /// Terminate (close) the App
-    pub fn terminate(&self) {
+    pub fn terminate(&self) -> Result<(), String> {
         unsafe { swift_appkit_terminate(self.ptr) }
+        wrap_error(())
     }
     
     

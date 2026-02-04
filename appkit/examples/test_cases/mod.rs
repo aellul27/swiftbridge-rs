@@ -10,6 +10,7 @@ pub struct SubTestResult {
 
 pub struct TestCase {
     pub name: &'static str,
+    pub subtests: i32,
     pub func: fn() -> Vec<SubTestResult>,
 }
 

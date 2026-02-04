@@ -56,7 +56,7 @@ fn main() {
             }
         }
 
-        let total_subtests = subtests.len();
+        let total_subtests = test.subtests;
 
         if subtests_failed.is_empty() {
             passed += 1;

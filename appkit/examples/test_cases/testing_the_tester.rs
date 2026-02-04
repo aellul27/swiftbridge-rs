@@ -3,6 +3,7 @@ use super::{SubTestResult, TestCase};
 pub fn test_case() -> TestCase {
     TestCase {
         name: "testing_the_tester",
+        subtests: 4,
         func: run_subtests,
     }
 }

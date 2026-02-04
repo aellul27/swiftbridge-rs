@@ -1,6 +1,7 @@
 // appkit/test_cases/mod.rs
 
 mod testing_the_tester;
+mod app;
 
 pub struct SubTestResult {
     pub name: &'static str,
@@ -15,5 +16,6 @@ pub struct TestCase {
 pub fn all_tests() -> Vec<TestCase> {
     vec![
         testing_the_tester::test_case(),
+        app::test_case(),
     ]
 }

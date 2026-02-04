@@ -6,6 +6,32 @@ const GREEN: &str = "\x1b[32m";
 const RED: &str = "\x1b[31m";
 const RESET: &str = "\x1b[0m";
 
+pub fn prompt_yes_no(question: &str, no_message: &str) -> Result<(), String> {
+    use std::io::{self, Write};
+
+    print!("{} (y/n): ", question);
+    let _ = io::stdout().flush();
+
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .map_err(|e| format!("failed to read input: {}", e))?;
+
+    match input.trim().to_lowercase().as_str() {
+        "y" | "yes" => Ok(()),
+        "n" | "no" => Err(no_message.to_string()),
+        _ => Err("invalid response".to_string()),
+    }
+}
+
+pub fn expected_error(result: Result<(), String>, expected: &str) -> Result<(), String> {
+    match result {
+        Ok(()) => Err("expected error, got Ok".to_string()),
+        Err(err) if err.contains(expected) => Ok(()),
+        Err(err) => Err(format!("unexpected error: {}", err)),
+    }
+}
+
 fn main() {
     println!("running {} tests", test_cases::all_tests().len());
 

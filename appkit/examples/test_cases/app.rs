@@ -1,4 +1,5 @@
 use std::thread;
+use std::time::Duration;
 use appkit::app::App;
 
 use super::{SubTestResult, TestCase};
@@ -6,7 +7,7 @@ use super::{SubTestResult, TestCase};
 pub fn test_case() -> TestCase {
     TestCase {
         name: "app_tests",
-        subtests: 2,
+        subtests: 4,
         func: run_subtests,
     }
 }
@@ -53,5 +54,44 @@ fn run_subtests() -> Vec<SubTestResult> {
         return results;
     };
 
+    let expected_error = "swift_appkit_run must be called on the main thread";
+
+    let handle = thread::spawn(move || app.run().map(|_| ()).map_err(|e| e.to_string()));
+
+    let result = match handle.join() {
+        Ok(result) => crate::expected_error(result, expected_error),
+        Err(_) => Err("app thread panicked".to_string()),
+    };
+
+    results.push(SubTestResult {
+        name: "app.run on non-main thread",
+        result,
+    });
+
+    // app run test: main
+
+    let timer_handle = thread::spawn(move || {
+        thread::sleep(Duration::from_secs(1));
+        app.stop()
+    });
+
+    let run_result = app.run();
+    let stop_result = match timer_handle.join() {
+        Ok(result) => result,
+        Err(_) => Err("timer thread panicked".to_string()),
+    };
+
+    let _ = match run_result {
+        Ok(()) => match stop_result {
+            Ok(()) => Ok(()),
+            Err(e) => Err(format!("Failed to stop app: {}", e)),
+        },
+        Err(e) => Err(format!("Failed to run app: {}", e)),
+    };
+    results.push(SubTestResult {
+        name: "app_run on main thread",
+        result: app_result.clone(),
+    });
+    
     results
 }

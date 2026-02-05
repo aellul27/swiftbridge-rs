@@ -23,6 +23,8 @@ pub struct App {
 unsafe impl Send for App {}
 unsafe impl Sync for App {}
 
+impl Copy for App {}
+
 impl Clone for App {
     fn clone(&self) -> Self {
         Self { ptr: self.ptr }

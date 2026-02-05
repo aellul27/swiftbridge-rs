@@ -1,6 +1,7 @@
 use std::thread;
-use std::time::Duration;
 use appkit::app::App;
+
+use crate::prompt_yes_no;
 
 use super::{SubTestResult, TestCase};
 
@@ -71,26 +72,32 @@ fn run_subtests() -> Vec<SubTestResult> {
     // app run test: main
 
     let timer_handle = thread::spawn(move || {
-        thread::sleep(Duration::from_secs(1));
-        app.stop()
+        let prompt_result = prompt_yes_no(
+            "Is the application responding?",
+            "Application is not responding",
+        );
+
+        println!("Click the app to get it to stop the loop.");
+        let stop_result = app.stop();
+        (prompt_result, stop_result)
     });
 
     let run_result = app.run();
-    let stop_result = match timer_handle.join() {
+    let (prompt_result, stop_result) = match timer_handle.join() {
         Ok(result) => result,
-        Err(_) => Err("timer thread panicked".to_string()),
+        Err(_) => (Err("timer thread panicked".to_string()), Ok(())),
     };
 
-    let _ = match run_result {
+    let result = match run_result {
         Ok(()) => match stop_result {
-            Ok(()) => Ok(()),
+            Ok(()) => prompt_result,
             Err(e) => Err(format!("Failed to stop app: {}", e)),
         },
         Err(e) => Err(format!("Failed to run app: {}", e)),
     };
     results.push(SubTestResult {
         name: "app_run on main thread",
-        result: app_result.clone(),
+        result,
     });
     
     results
